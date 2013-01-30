@@ -1,0 +1,129 @@
+(ns octia.core-test
+  (:refer-clojure :exclude [get])
+  (:require [ring.mock.request :as request])
+  (:use clojure.test
+        octia.core
+        midje.sweet))
+
+(unfinished wrapper-called wrapper2-called group-wrapper-called)
+
+(defn group-wrapper
+  [handler]
+  (fn [req]
+    (group-wrapper-called)
+    (handler req)))
+
+(defn wrapper
+  [handler]
+  (fn [req]
+    (wrapper-called)
+    (handler req)))
+
+(defn wrapper2
+  [handler]
+  (fn [req]
+    (wrapper2-called)
+    (handler req)))
+
+(unfinished handle-update handle-get ping handle-get-post)
+
+(def success "success")
+
+(deftest simple-route
+  (let [r (endpoint :put
+                    "/:id"
+                    {:doc "XXXX"
+                     :wrappers [wrapper]}
+                    {{:keys [id] :as user} :params}
+                    (handle-update id))]
+    (expect
+      (-> (request/request :put "/123") r :body)
+      => success
+      (fake (handle-update "123") => success)
+      (fake (wrapper-called) => nil))))
+
+(deftest method-route-put
+  (let [r (put "/:id"
+                   {:doc "XXXX"
+                    :wrappers [wrapper]}
+                   {{:keys [id] :as user} :params}
+                   (handle-update id))]
+    (expect
+      (-> (request/request :put "/123") r :body)
+      => success
+      (fake (handle-update "123") => success)
+      (fake (wrapper-called) => nil))))
+
+(deftest method-route-get
+  (let [r (get "/:id"
+               {:doc "XXXX"
+                :wrappers [wrapper]}
+               {{:keys [id] :as user} :params}
+               (handle-get id))]
+    (expect
+      (-> (request/request :get "/123") r :body)
+      => success
+      (fake (handle-get "123") => success)
+      (fake (wrapper-called) => nil))))
+
+(deftest wrapper-test
+  (let [r (get "/:id"
+               {:doc "XXXX"
+                :wrappers [wrapper]}
+               {{:keys [id] :as user} :params}
+               (handle-get id))]
+    (expect
+      (-> (request/request :get "/123") r :body)
+      => success
+      (fake (handle-get "123") => success)
+      (fake (wrapper-called) => anything))))
+
+(deftest group-test
+  (let [r (endpoints->handler
+            (group "~api/users/"
+                   {:doc "A group for users routes"
+                    :wrappers [group-wrapper]}
+              (get ":id"
+                   {:doc "XXXX"
+                    :wrappers [wrapper]}
+                 {{:keys [id] :as user} :params}
+                 (handle-get id))
+              (put ":id"
+                   {:doc "YYYY"
+                    :wrappers [wrapper]}
+                 {{:keys [id] :as user} :params}
+                 (handle-update id)))
+            (group "~api/posts/"
+                   {:doc "A group for posts routes"
+                    :wrappers [group-wrapper]}
+              (get ":id"
+                   {:doc "ZZZZ"
+                    :wrappers [wrapper2]}
+                 {{:keys [id] :as post} :params}
+                 (handle-get-post id)))
+            (get "~api/ping"
+                 {:doc "AAAA"}
+               {:as request}
+               (ping)))]
+    (expect
+      (-> (request/request :get "~api/users/123") r :body)
+      => success
+      (fake (handle-get "123") => success)
+      (fake (wrapper-called) => anything)
+      (fake (group-wrapper-called) => anything))
+    (expect
+      (-> (request/request :put "~api/users/123") r :body)
+      => success
+      (fake (handle-update "123") => success)
+      (fake (wrapper-called) => anything)
+      (fake (group-wrapper-called) => anything))
+    (expect
+      (-> (request/request :get "~api/posts/123") r :body)
+      => success
+      (fake (handle-get-post "123") => success)
+      (fake (wrapper2-called) => anything)
+      (fake (group-wrapper-called) => anything))
+    (expect
+      (-> (request/request :get "~api/ping") r :body)
+      => success
+      (fake (ping) => success))))
