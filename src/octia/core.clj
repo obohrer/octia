@@ -16,11 +16,13 @@
      endpoint/Endpoint
        (doc [this] ~doc)
        (path [this] ~path)
-       (sub-endpoints [this] (vector ~@body))
+       (sub-endpoints [this]
+         (binding [*group* {:path ~path
+                             :opts ~opts}] (vector ~@body)))
      clojure.lang.IFn
        (invoke [this request#]
          (binding [*group* {:path ~path
-                            :opts ~opts}]
+                             :opts ~opts}]
             (some #(% request#) (vector ~@body))))))
 
 (defn endpoints->handler
