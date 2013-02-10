@@ -88,7 +88,4 @@
 
 (defn generate
   [main-handler]
-  (let [docs (generate-iodocs main-handler)]
-    (count docs)
-    (pprint/pprint docs)
-    (spit "doc.json" (cheshire/generate-string docs))))
+  (generate-iodocs main-handler))
