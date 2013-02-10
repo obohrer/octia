@@ -1,32 +1,85 @@
 (ns octia.doc
   (:require [octia.endpoint :as endpoint]
             [cheshire.core  :as cheshire]
+            [clojure.string :as string]
             [clojure.pprint :as pprint]))
 
+(def default-type "string")
+
+(defn bool->s
+  [b]
+  (if b
+    "Y"
+    "N"))
+
 (defn parameter
-  [[name {:keys [type description]}]]
-  {:Name        name
-   :Type        type
-   :Description description})
+  [[name {:keys [type description choices optional default]}]]
+  (case (or type default-type)
+    "enumerated"
+    {:Name        name
+     :Type        type
+     :Description description
+     :Required    (-> optional not bool->s)
+     :Default     default
+     :EnumeratedList choices}
+    {:Name        name
+     :Type        type
+     :Required    (-> optional not bool->s)
+     :Default     default
+     :Description description}))
+
+(defn json-input?
+  [input]
+  (= input :json))
+
+(def json-content-type
+  {"Name"           "Content-Type",
+   "Required"       (bool->s true)
+   "Default"        "application/json"
+   "Type"           "enumerated"
+   "Description"    "response mime type"
+   "EnumeratedList" ["application/json"]})
+
+(def accept-json
+  {"Name"           "Accept",
+   "Required"       (bool->s true)
+   "Default"        "application/json"
+   "Type"           "enumerated"
+   "Description"    "response mime type"
+   "EnumeratedList" ["application/json"]})
+
+(defn json-params
+  [params]
+  (filter (comp (partial = :json) :location second) params))
+
+(defn query-params
+  [params]
+  (filter (comp #(or (nil? %) (= :query %)) :location second) params))
 
 (defn endpoint
   [endpoint]
-  (let [{:keys [name description params]} (endpoint/doc endpoint)
-        method (endpoint/method endpoint)
-        path   (endpoint/path endpoint)]
-    {:MethodName  name
-     :Synopsis    description
-     :HTTPMethod  method
-     :URI         path
-     :parameters  (map parameter params)}))
+  (let [{:keys [input description params] :as doc} (endpoint/doc endpoint)
+        method       (endpoint/method endpoint)
+        path         (endpoint/path endpoint)
+        json-params  (json-params params)
+        query-params (query-params params)]
+    {:MethodName    (:name doc)
+     :Synopsis      description
+     :HTTPMethod    (-> method name string/upper-case)
+     :URI           path
+     :elements      (map parameter json-params)
+     :parameters    (map parameter query-params)
+     :headers       (if (json-input? input)
+                      [json-content-type accept-json]
+                      [accept-json])
+     :RequiresOAuth (bool->s false)}))
 
 (defn endpoints-group
   [group]
-  (if-let [endpoints (endpoint/sub-endpoints group)]
+  (let [sub-endpoints (endpoint/sub-endpoints group)
+        endpoints (or sub-endpoints [group])]
     {:name (-> group endpoint/doc :name)
-     :methods (map endpoint endpoints)}
-    {:name (-> group endpoint/doc :name)
-     :methods (endpoint group)}))
+     :methods (map endpoint endpoints)}))
 
 (defn generate-iodocs
   [main-handler]
@@ -39,39 +92,3 @@
     (count docs)
     (pprint/pprint docs)
     (spit "doc.json" (cheshire/generate-string docs))))
-  
-;
-; {
-;    "endpoints":[
-;       {
-;          "name":"Score Methods",
-;          "methods":[
-;             {
-;                "MethodName":"Klout Score",
-;                "Synopsis":"This method allows you to retrieve a Klout score",
-;                "HTTPMethod":"GET",
-;                "URI":"/klout.:format",
-;                "RequiresOAuth":"N",
-;                "parameters":[
-;                   {
-;                      "Name":"users",
-;                      "Required":"Y",
-;                      "Default":"",
-;                      "Type":"string",
-;                      "Description":"One or more (comma-separated) Twitter usernames"
-;                   },
-;                   {
-;                      "Name":"format",
-;                      "Required":"Y",
-;                      "Default":"json",
-;                      "Type":"enumerated",
-;                      "Description":"Output format as JSON or XML",
-;                      "EnumeratedList":[
-;                         "json",
-;                         "xml"
-;                      ]
-;                   }
-;                ]
-;             }
-;          ]
-;       },

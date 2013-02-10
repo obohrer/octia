@@ -13,7 +13,7 @@
                    {:doc
                     {:description "A group for users routes"
                      :name "Users routes"}}
-              (get "/:id"
+              (GET "/:id"
                    {:doc
                     {:description "Get a user"
                      :name "get-user"
@@ -22,7 +22,7 @@
                                :description "The user id"}}}}
                  {{:keys [id] :as user} :params}
                  stub)
-              (put "/:id"
+              (PUT "/:id"
                    {:doc
                      {:description "Update a user"
                       :name "update-user"
@@ -36,7 +36,7 @@
                    {:doc
                     {:description "A group for posts routes"
                      :name "Posts routes"}}
-              (get "/:id"
+              (GET "/:id"
                    {:doc
                     {:description "Get a post"
                      :name "get-post"
@@ -46,10 +46,11 @@
                  {{:keys [id] :as post} :params}
                  stub))
             
-            (get "~api/ping"
+            (GET "~api/ping"
                  {:doc
                   {:description "ping"
                    :name "ping"}}
                {:as request}
-               stub))]
+               stub)
+               )]
     (doc/generate r)))

@@ -43,7 +43,7 @@
       (fake (wrapper-called) => nil))))
 
 (deftest method-route-put
-  (let [r (put "/:id"
+  (let [r (PUT "/:id"
                    {:doc "XXXX"
                     :wrappers [wrapper]}
                    {{:keys [id] :as user} :params}
@@ -55,7 +55,7 @@
       (fake (wrapper-called) => nil))))
 
 (deftest method-route-get
-  (let [r (get "/:id"
+  (let [r (GET "/:id"
                {:doc "XXXX"
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
@@ -67,7 +67,7 @@
       (fake (wrapper-called) => nil))))
 
 (deftest wrapper-test
-  (let [r (get "/:id"
+  (let [r (GET "/:id"
                {:doc "XXXX"
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
@@ -83,12 +83,12 @@
             (group "~api/users/"
                    {:doc "A group for users routes"
                     :wrappers [group-wrapper]}
-              (get ":id"
+              (GET ":id"
                    {:doc "XXXX"
                     :wrappers [wrapper]}
                  {{:keys [id] :as user} :params}
                  (handle-get id))
-              (put ":id"
+              (PUT ":id"
                    {:doc "YYYY"
                     :wrappers [wrapper]}
                  {{:keys [id] :as user} :params}
@@ -96,12 +96,12 @@
             (group "~api/posts/"
                    {:doc "A group for posts routes"
                     :wrappers [group-wrapper]}
-              (get ":id"
+              (GET ":id"
                    {:doc "ZZZZ"
                     :wrappers [wrapper2]}
                  {{:keys [id] :as post} :params}
                  (handle-get-post id)))
-            (get "~api/ping"
+            (GET "~api/ping"
                  {:doc "AAAA"}
                {:as request}
                (ping)))]
