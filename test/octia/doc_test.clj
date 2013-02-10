@@ -1,6 +1,5 @@
 (ns octia.doc-test
   (:require [octia.doc :as doc])
-  (:refer-clojure :exclude [get])
   (:use clojure.test
         octia.core
         midje.sweet))

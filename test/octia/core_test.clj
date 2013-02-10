@@ -1,5 +1,4 @@
 (ns octia.core-test
-  (:refer-clojure :exclude [get])
   (:require [ring.mock.request :as request])
   (:use clojure.test
         octia.core

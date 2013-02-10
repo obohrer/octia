@@ -1,8 +1,7 @@
 (ns octia.core
   (:require [octia.compojure-adapter :as compojure-adapter]
             [octia.endpoint          :as endpoint]
-            [octia.doc               :as doc])
-  (:refer-clojure :exclude [get]))
+            [octia.doc               :as doc]))
 
 (def default-group
   {:path ""
@@ -50,18 +49,22 @@
        clojure.lang.IFn
          (invoke [this request#] (route-fn# request#)))))
 
-(defmacro get
+(defmacro GET
   [path {:keys [doc wrappers] :as opts} args & body]
   `(endpoint :get ~path ~opts ~args ~@body))
 
-(defmacro post
+(defmacro POST
   [path {:keys [doc wrappers] :as opts} args & body]
   `(endpoint :post ~path ~opts ~args ~@body))
 
-(defmacro put
+(defmacro PUT
   [path {:keys [doc wrappers] :as opts} args & body]
   `(endpoint :put ~path ~opts ~args ~@body))
 
-(defmacro delete
+(defmacro DELETE
   [path {:keys [doc wrappers] :as opts} args & body]
   `(endpoint :delete ~path ~opts ~args ~@body))
+
+(defmacro ANY
+  [path {:keys [doc wrappers] :as opts} args & body]
+  `(endpoint :any ~path ~opts ~args ~@body))
