@@ -1,6 +1,7 @@
 (ns octia.core
   (:require [octia.compojure-adapter :as compojure-adapter]
             [octia.endpoint          :as endpoint]
+            [octia.wrapper           :as wrapper]
             [octia.doc               :as doc]))
 
 (def default-group
@@ -38,7 +39,14 @@
   "Generate an endpoint"
   [method path {:keys [doc wrappers] :as opts} args & body]
   `(let [path# (-> *group* :path (str ~path))
-         wrappers# (-> *group* :opts :wrappers (or []) (concat ~wrappers))
+         all-wrappers-def# (-> *group* :opts :wrappers (or []) (concat ~wrappers))
+         wrappers-factories# (->> all-wrappers-def# (map wrapper/->wrapper-factory))
+         endpoint-def# (reify endpoint/Endpoint
+                         (doc [this#] ~doc)
+                         (path [this#] path#)
+                         (method [this#] ~method)
+                         (sub-endpoints [this#] nil))
+         wrappers# (->> wrappers-factories# (map #(wrapper/build % endpoint-def#)))
          route-fn# (compojure-adapter/m-compile-route ~method path# wrappers# ~args ~body)]
      (reify
        endpoint/Endpoint

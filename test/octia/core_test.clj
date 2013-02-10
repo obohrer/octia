@@ -1,5 +1,7 @@
 (ns octia.core-test
-  (:require [ring.mock.request :as request])
+  (:require [ring.mock.request :as request]
+            [octia.endpoint    :as endpoint]
+            [octia.wrapper     :as wrapper])
   (:use clojure.test
         octia.core
         midje.sweet))
@@ -126,3 +128,25 @@
       (-> (request/request :get "~api/ping") r :body)
       => success
       (fake (ping) => success))))
+
+(unfinished inc-req-count)
+
+(deftest wrapper-factory-test
+  "Simple wrapper factory which produces wrappers
+   which use endpoint information (path & method) to collect stats"
+  (let [stat-wrapper (reify wrapper/WrapperFactory
+                       (build [this endpoint]
+                         (fn [handler]
+                           (fn [req]
+                             (inc-req-count (endpoint/method endpoint) (endpoint/path endpoint))
+                             (handler req)))))
+        r (GET "/:id"
+               {:doc "XXXX"
+                :wrappers [stat-wrapper]}
+               {{:keys [id] :as user} :params}
+               (handle-get id))]
+    (expect
+      (-> (request/request :get "/123") r :body)
+      => success
+      (fake (handle-get "123") => success)
+      (fake (inc-req-count :get "/:id") => anything))))
