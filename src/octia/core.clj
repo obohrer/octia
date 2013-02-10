@@ -35,10 +35,18 @@
        (invoke [this request]
          (some #(% request) endpoints))))
 
+(defn merge-paths
+  [grp-path endpoint-path]
+  (cond
+    (string? endpoint-path)
+      (str grp-path endpoint-path)
+    (vector? endpoint-path)
+      (-> (str grp-path (first endpoint-path)) vector (concat (rest endpoint-path)) vec)))
+
 (defmacro endpoint
   "Generate an endpoint"
   [method path {:keys [doc wrappers] :as opts} args & body]
-  `(let [path# (-> *group* :path (str ~path))
+  `(let [path# (-> *group* :path (merge-paths ~path))
          all-wrappers-def# (-> *group* :opts :wrappers (or []) (concat ~wrappers))
          wrappers-factories# (->> all-wrappers-def# (map wrapper/->wrapper-factory))
          endpoint-def# (reify endpoint/Endpoint

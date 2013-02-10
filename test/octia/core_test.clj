@@ -136,6 +136,19 @@
       => success
       (fake (ping) => success))))
 
+(deftest re-test
+  (let [r (GET ["/:id" :id #"[\w]*"]
+               {:doc {:description "descr" :name "name"
+                :params {:id {:type "string" :description "id"}}}
+                :wrappers [wrapper]}
+               {{:keys [id] :as user} :params}
+               (handle-get id))]
+    (expect
+      (-> (request/request :get "/") r :body)
+      => success
+      (fake (handle-get "") => success)
+      (fake (wrapper-called) => nil))))
+
 (unfinished inc-req-count)
 
 (deftest wrapper-factory-test

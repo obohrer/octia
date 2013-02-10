@@ -8,15 +8,15 @@
   [route]
   (cond
     (string? route)
-      `(clout/route-compile ~route)
+      (clout/route-compile route)
     (vector? route)
-      `(clout/route-compile
-        ~(first route)
-        ~(apply hash-map (rest route)))
+      (clout/route-compile
+        (first route)
+        (apply hash-map (rest route)))
     :else
-      `(if (string? ~route)
-         (clout/route-compile ~route)
-         ~route)))
+      (if (string? route)
+         (clout/route-compile route)
+         route)))
 
 (defn wrap-with
   "Takes a function and a vector of decorators, returns
@@ -28,7 +28,7 @@
   "Generate a function from a route definition"
   [method route decorators bindings body]
   `(c/make-route
-    ~method ~(prepare-route route)
+    ~method (prepare-route ~route)
     (wrap-with
       (fn [request#]
         (c/let-request [~bindings request#] ~@body))
