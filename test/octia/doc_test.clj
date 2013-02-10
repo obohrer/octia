@@ -1,5 +1,6 @@
 (ns octia.doc-test
-  (:require [octia.doc :as doc])
+  (:require [octia.doc      :as doc]
+            [octia.endpoint :as endpoint])
   (:use clojure.test
         octia.core
         midje.sweet))
@@ -50,6 +51,72 @@
                   {:description "ping"
                    :name "ping"}}
                {:as request}
-               stub)
-               )]
-    (doc/generate r)))
+               stub))]
+    (expect (->> r doc/generate :endpoints (map :name) vec)
+     => ["Users routes" "Posts routes" "ping"])))
+
+(deftest param-string-test
+  (facts
+    (doc/parameter ["X" {:type "string" :description "A string"}])
+    =>
+    {:Name        "X"
+     :Type        "string"
+     :Required    "Y"
+     :Default     nil
+     :Description "A string"}
+
+    (doc/parameter ["Y" {:type "string" :description "A string" :optional true}])
+    =>
+    {:Name        "Y"
+     :Type        "string"
+     :Required    "N"
+     :Default     nil
+     :Description "A string"}
+
+    (doc/parameter ["Y" {:type "string" :description "A string" :default "Toto"}])
+    =>
+    {:Name        "Y"
+     :Type        "string"
+     :Required    "Y"
+     :Default     "Toto"
+     :Description "A string"}))
+
+(deftest param-bool-test
+  (facts
+    (doc/parameter ["X" {:type "boolean" :description "A bool" :default true}])
+    =>
+    {:Name        "X"
+     :Type        "boolean"
+     :Required    "Y"
+     :Default     true
+     :Description "A bool"}))
+
+(deftest param-enumerated-test
+  (facts
+    (doc/parameter ["X" {:type "enumerated" :description "A string" :choices ["A" "B" "C"]}])
+    =>
+    {:Name            "X"
+     :Type            "enumerated"
+     :Required        "Y"
+     :EnumeratedList  ["A" "B" "C"]
+     :Default         nil
+     :Description     "A string"}))
+
+
+(deftest param-location-test
+  (let [r (PUT "/:id"
+               {:doc
+                {:description "Update a post"
+                 :name "update-post"
+                 :params {:id {:type "string" :description "The post id"}
+                          :m {:type "string" :descrption "message" :location :json}}}}
+               {{:keys [id] :as post} :params}
+               stub)]
+  (facts
+    (doc/json-params (-> r endpoint/doc :params vec))
+    =>
+    [[:m {:location :json, :type "string", :descrption "message"}]]
+    
+    (doc/query-params (-> r endpoint/doc :params vec))
+    =>
+    [[:id {:type "string", :description "The post id"}]])))
