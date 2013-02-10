@@ -13,13 +13,13 @@
   [path {:keys [doc wrappers] :as opts} & body]
   `(reify
      endpoint/Endpoint
-       (doc [this] ~doc)
-       (path [this] ~path)
-       (sub-endpoints [this]
+       (doc [this#] ~doc)
+       (path [this#] ~path)
+       (sub-endpoints [this#]
          (binding [*group* {:path ~path
                              :opts ~opts}] (vector ~@body)))
      clojure.lang.IFn
-       (invoke [this request#]
+       (invoke [this# request#]
          (binding [*group* {:path ~path
                              :opts ~opts}]
             (some #(% request#) (vector ~@body))))))
@@ -42,12 +42,12 @@
          route-fn# (compojure-adapter/m-compile-route ~method path# wrappers# ~args ~body)]
      (reify
        endpoint/Endpoint
-         (doc [this] ~doc)
-         (path [this] path#)
-         (method [this] ~method)
-         (sub-endpoints [this] [])
+         (doc [this#] ~doc)
+         (path [this#] path#)
+         (method [this#] ~method)
+         (sub-endpoints [this#] nil)
        clojure.lang.IFn
-         (invoke [this request#] (route-fn# request#)))))
+         (invoke [this# request#] (route-fn# request#)))))
 
 (defmacro GET
   [path {:keys [doc wrappers] :as opts} args & body]
