@@ -33,7 +33,8 @@
 (deftest simple-route
   (let [r (endpoint :put
                     "/:id"
-                    {:doc "XXXX"
+                    {:doc {:description "descr" :name "name"
+                           :params {:id {:type "string" :description "id"}}}
                      :wrappers [wrapper]}
                     {{:keys [id] :as user} :params}
                     (handle-update id))]
@@ -45,7 +46,8 @@
 
 (deftest method-route-put
   (let [r (PUT "/:id"
-                   {:doc "XXXX"
+                   {:doc {:description "descr" :name "name"
+                          :params {:id {:type "string" :description "id"}}}
                     :wrappers [wrapper]}
                    {{:keys [id] :as user} :params}
                    (handle-update id))]
@@ -57,7 +59,8 @@
 
 (deftest method-route-get
   (let [r (GET "/:id"
-               {:doc "XXXX"
+               {:doc {:description "descr" :name "name"
+                :params {:id {:type "string" :description "id"}}}
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
@@ -69,7 +72,8 @@
 
 (deftest wrapper-test
   (let [r (GET "/:id"
-               {:doc "XXXX"
+               {:doc {:description "descr" :name "name"
+                      :params {:id {:type "string" :description "id"}}}
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
@@ -85,12 +89,14 @@
                    {:doc "A group for users routes"
                     :wrappers [group-wrapper]}
               (GET ":id"
-                   {:doc "XXXX"
+                   {:doc {:description "descr" :name "name"
+                          :params {:id {:type "string" :description "id"}}}
                     :wrappers [wrapper]}
                  {{:keys [id] :as user} :params}
                  (handle-get id))
               (PUT ":id"
-                   {:doc "YYYY"
+                   {:doc {:description "descr" :name "name"
+                          :params {:id {:type "string" :description "id"}}}
                     :wrappers [wrapper]}
                  {{:keys [id] :as user} :params}
                  (handle-update id)))
@@ -98,12 +104,13 @@
                    {:doc "A group for posts routes"
                     :wrappers [group-wrapper]}
               (GET ":id"
-                   {:doc "ZZZZ"
+                   {:doc {:description "descr" :name "name"
+                          :params {:id {:type "string" :description "id"}}}
                     :wrappers [wrapper2]}
                  {{:keys [id] :as post} :params}
                  (handle-get-post id)))
             (GET "~api/ping"
-                 {:doc "AAAA"}
+                 {:doc {:description "descr" :name "name"}}
                {:as request}
                (ping)))]
     (expect
@@ -141,7 +148,8 @@
                              (inc-req-count (endpoint/method endpoint) (endpoint/path endpoint))
                              (handler req)))))
         r (GET "/:id"
-               {:doc "XXXX"
+               {:doc {:description "descr" :name "name"
+                      :params {:id {:type "string" :description "id"}}}
                 :wrappers [stat-wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
