@@ -83,6 +83,20 @@
       (fake (handle-get "123") => success)
       (fake (wrapper-called) => anything))))
 
+(defn concat-wrapper
+  [x]
+  (fn [handler]
+    (fn [req]
+      (handler (update-in req [:params :x] #(concat (or % []) [x]))))))
+
+(deftest wrapper-order-test
+  (let [r (group "/x" {:wrappers [(concat-wrapper 1) (concat-wrapper 2)]}
+            (GET "/:id" {:wrappers [(concat-wrapper 3) (concat-wrapper 4)]}
+               {{:keys [x] :as user} :params}
+               (apply str x)))]
+    (expect (-> (request/request :get "/x/abcd") r :body) => "1234")))
+
+
 (deftest group-test
   (let [r (endpoints->handler
             (group "~api/users/"

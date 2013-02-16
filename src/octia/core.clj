@@ -47,18 +47,21 @@
   [method path {:keys [doc wrappers] :as opts} args & body]
   `(let [path# (-> *group* :path (merge-paths ~path))
          all-wrappers-def# (-> *group* :opts :wrappers (or []) (concat ~wrappers))
+         compiled-route# (compojure-adapter/prepare-route path#)
          wrappers-factories# (->> all-wrappers-def# (map wrapper/->wrapper-factory))
          endpoint-def# (reify endpoint/Endpoint
                          (doc [this#] ~doc)
                          (path [this#] path#)
+                         (route [this#] compiled-route#)
                          (method [this#] ~method)
                          (sub-endpoints [this#] nil))
          wrappers# (->> wrappers-factories# (map #(wrapper/build % endpoint-def#)))
-         route-fn# (compojure-adapter/m-compile-route ~method path# wrappers# ~args ~body)]
+         route-fn# (compojure-adapter/m-compile-route ~method compiled-route# wrappers# ~args ~body)]
      (reify
        endpoint/Endpoint
          (doc [this#] ~doc)
          (path [this#] path#)
+         (route [this#] compiled-route#)
          (method [this#] ~method)
          (sub-endpoints [this#] nil)
        clojure.lang.IFn

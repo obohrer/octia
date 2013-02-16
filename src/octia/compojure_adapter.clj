@@ -22,7 +22,7 @@
   "Takes a function and a vector of decorators, returns
   a new function decored."
   [func decorators]
-  (reduce #(%2 %1) func decorators))
+  (reduce #(%2 %1) func (reverse decorators)))
 
 (defmacro m-compile-route
   "Generate a function from a route definition"
