@@ -65,8 +65,8 @@
         query-params (query-params params)]
     {:MethodName    (:name doc)
      :Synopsis      description
-     :HTTPMethod    (-> method name string/upper-case)
-     :URI           path
+     :HTTPMethod    (-> method (or :any) name string/upper-case)
+     :URI           (if (string? path) path (first path))
      :elements      (map parameter json-params)
      :parameters    (map parameter query-params)
      :headers       (if (json-input? input)
