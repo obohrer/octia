@@ -12,18 +12,17 @@
 
 (defmacro group
   [path {:keys [doc wrappers] :as opts} & body]
-  `(reify
-     endpoint/Endpoint
-       (doc [this#] ~doc)
-       (path [this#] ~path)
-       (sub-endpoints [this#]
-         (binding [*group* {:path ~path
-                             :opts ~opts}] (vector ~@body)))
-     clojure.lang.IFn
-       (invoke [this# request#]
-         (binding [*group* {:path ~path
-                             :opts ~opts}]
-            (some #(% request#) (vector ~@body))))))
+  `(binding [*group* {:path ~path :opts ~opts}]
+     (let [endpoints# (vector ~@body)]
+       (reify
+         endpoint/Endpoint
+           (doc [this#] ~doc)
+           (path [this#] ~path)
+           (sub-endpoints [this#]
+             endpoints#)
+         clojure.lang.IFn
+           (invoke [this# request#]
+             (some #(% request#) endpoints#))))))
 
 (defn endpoints->handler
   "Combine several endpoints into one handler"
