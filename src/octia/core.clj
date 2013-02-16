@@ -82,4 +82,4 @@
 
 (defmacro ANY
   [path {:keys [doc wrappers] :as opts} args & body]
-  `(endpoint :any ~path ~opts ~args ~@body))
+  `(endpoint nil ~path ~opts ~args ~@body))
