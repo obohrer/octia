@@ -83,6 +83,18 @@
   [path {:keys [doc wrappers] :as opts} args & body]
   `(endpoint :delete ~path ~opts ~args ~@body))
 
+(defmacro HEAD
+  [path {:keys [doc wrappers] :as opts} args & body]
+  `(endpoint :head ~path ~opts ~args ~@body))
+
+(defmacro OPTIONS
+  [path {:keys [doc wrappers] :as opts} args & body]
+  `(endpoint :options ~path ~opts ~args ~@body))
+
+(defmacro PATCH
+  [path {:keys [doc wrappers] :as opts} args & body]
+  `(endpoint :patch ~path ~opts ~args ~@body))
+
 (defmacro ANY
   [path {:keys [doc wrappers] :as opts} args & body]
   `(endpoint nil ~path ~opts ~args ~@body))
