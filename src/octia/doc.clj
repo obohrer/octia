@@ -89,3 +89,7 @@
 (defn generate
   [main-handler]
   (generate-iodocs main-handler))
+
+(defn spit-doc
+  [main-handler filename]
+  (->> main-handler generate-iodocs cheshire/generate-string (spit filename)))
