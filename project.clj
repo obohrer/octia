@@ -1,6 +1,6 @@
-(defproject octia "0.0.1-SNAPSHOT"
+(defproject octia "0.0.1"
   :description "A clojure library on top of compojure/ring to easily define api endpoints.
-  Support iodocs generation."
+  Supports iodocs generation."
   :url "http://github.com/obohrer/octia"
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [compojure           "1.1.1"]
