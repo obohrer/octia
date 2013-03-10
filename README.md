@@ -1,7 +1,9 @@
 # octia
 
 A clojure library on top of compojure/ring to easily define api endpoints.
+
 Supports iodocs generation.
+
 Why octia ?
 * enable specific wrappers per endpoint
 * wrappers can be generated using endpoint definition
