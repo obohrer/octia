@@ -10,12 +10,14 @@ Why octia ?
 * documentation can be included in endpoint definition
 * iodocs can be automatically generated from your request handler
 
-## Usage
+## Installation
 
 With leiningen :
 ```clojure
 [octia "0.0.1"]
 ```
+
+## Usage
 
 ```clojure
 (use 'octia.core)
@@ -59,8 +61,6 @@ With leiningen :
        {{:keys [id]} :params}
        stub)))
 ```
-
-## Dependency
 
 ## Leiningen plugin
 lein-octia can be used to generate documentation using a leiningen command :
