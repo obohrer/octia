@@ -8,7 +8,7 @@
 (def stub "stub")
 
 (deftest group-test
-  (let [r (endpoints->handler
+  (let [r (group "" {}
             (group "~api/users"
                    {:doc
                     {:description "A group for users routes"

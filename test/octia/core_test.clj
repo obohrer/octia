@@ -98,7 +98,7 @@
 
 
 (deftest group-test
-  (let [r (endpoints->handler
+  (let [r (group "" {}
             (group "~api/users/"
                    {:doc "A group for users routes"
                     :wrappers [group-wrapper]}
@@ -149,6 +149,25 @@
       (-> (request/request :get "~api/ping") r :body)
       => success
       (fake (ping) => success))))
+
+(deftest multi-lvl-groups-test
+  (let [r (group "~api/" {:wrappers [group-wrapper]}
+            (group "users/"
+                   {:doc "A group for users routes"
+                    :wrappers [wrapper]}
+              (GET ":id"
+                   {:doc {:description "descr" :name "name"
+                          :params {:id {:type "string" :description "id"}}}
+                    :wrappers [wrapper2]}
+                 {{:keys [id]} :params}
+                 (handle-get id))))]
+    (expect
+      (-> (request/request :get "~api/users/123") r :body)
+      => success
+      (fake (handle-get "123") => success)
+      (fake (wrapper-called) => anything)
+      (fake (wrapper2-called) => anything)
+      (fake (group-wrapper-called) => anything))))
 
 (deftest re-test
   (let [r (GET ["/:id" :id #"[\w]*"]

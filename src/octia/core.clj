@@ -2,7 +2,8 @@
   (:require [octia.compojure-adapter :as compojure-adapter]
             [octia.endpoint          :as endpoint]
             [octia.wrapper           :as wrapper]
-            [octia.doc               :as doc]))
+            [octia.doc               :as doc]
+            [clojure.string          :as string]))
 
 (def default-group
   {:path ""
@@ -10,9 +11,11 @@
 
 (def ^{:dynamic true} *group* default-group)
 
+(declare merge-groups)
+
 (defmacro group
   [path {:keys [doc wrappers] :as opts} & body]
-  `(binding [*group* {:path ~path :opts ~opts}]
+  `(binding [*group* (merge-groups *group* {:path ~path :opts ~opts})]
      (let [endpoints# (vector ~@body)]
        (reify
          endpoint/Endpoint
@@ -24,16 +27,6 @@
            (invoke [this# request#]
              (some #(% request#) endpoints#))))))
 
-(defn endpoints->handler
-  "Combine several endpoints into one handler"
-  [& endpoints]
-  (reify
-     endpoint/Endpoint
-       (sub-endpoints [this] endpoints)
-     clojure.lang.IFn
-       (invoke [this request]
-         (some #(% request) endpoints))))
-
 (defn merge-paths
   [grp-path endpoint-path]
   (cond
@@ -41,6 +34,14 @@
       (str grp-path endpoint-path)
     (vector? endpoint-path)
       (-> (str grp-path (first endpoint-path)) vector (concat (rest endpoint-path)) vec)))
+
+(defn merge-groups
+  [g1 g2]
+  {:path (->> [g1 g2] (map :path) string/join)
+   :opts (merge (:opts g2)
+                {:wrappers (concat (-> g1 :opts :wrappers)
+                                   (-> g2 :opts :wrappers))
+                 :doc (-> g2 :opts :doc)})})
 
 (defmacro endpoint
   "Generate an endpoint"
