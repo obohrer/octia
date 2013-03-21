@@ -22,7 +22,7 @@ With leiningen :
 ```clojure
 (use 'octia.core)
 
-(endpoints->handler
+(group "api/" {:wrappers [json-output-wrapper]}
   (group "users"
          {:doc
           {:description "A group for users routes"
