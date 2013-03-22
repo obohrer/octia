@@ -14,7 +14,7 @@ Why octia ?
 
 With leiningen :
 ```clojure
-[octia "0.0.1"]
+[octia "0.0.2"]
 ```
 
 ## Usage
