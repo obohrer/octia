@@ -31,7 +31,7 @@
                                  :description "The user id"}}}}
                  {{:keys [id] :as user} :params}
                  stub))
-            
+
             (group "~api/posts"
                    {:doc
                     {:description "A group for posts routes"
@@ -45,14 +45,14 @@
                                 :description "The post id"}}}}
                  {{:keys [id] :as post} :params}
                  stub))
-            
+
             (GET "~api/ping"
                  {:doc
                   {:description "ping"
                    :name "ping"}}
                {:as request}
                stub))]
-    (expect (->> r doc/generate :endpoints (map :name) vec)
+    (fact (->> r doc/generate :endpoints (map :name) vec)
      => ["Users routes" "Posts routes" "ping"])))
 
 (deftest param-string-test
@@ -116,7 +116,7 @@
     (doc/json-params (-> r endpoint/doc :params vec))
     =>
     [[:m {:location :json, :type "string", :descrption "message"}]]
-    
+
     (doc/query-params (-> r endpoint/doc :params vec))
     =>
     [[:id {:type "string", :description "The post id"}]])))
