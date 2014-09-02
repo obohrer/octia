@@ -6,9 +6,9 @@
                  [compojure                 "1.1.6"
                   :exclusions [joda-time]]
                  [cheshire                  "5.3.1"]
-                 [com.palletops/thread-expr "1.3.0"]]
+                 [com.palletops/thread-expr "1.3.0"]
+                 [javax.servlet/servlet-api "2.5"]]
   :warn-on-reflection true
   :profiles {:dev
              {:dependencies [[ring-mock "0.1.5"]
-                             [midje     "1.6.3"
-                              :exclusions [org.clojure/clojure org.clojure/tools.macro joda-time]]]}})
+                             [midje     "1.6.3"]]}})
