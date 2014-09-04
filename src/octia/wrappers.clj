@@ -10,7 +10,6 @@
       (-> resp
           (when-not-> (instance? java.io.InputStream (:body resp))
                       (update-in [:body] cheshire/generate-string)
-                      (dissoc :raw-body) ;; Remove the raw body from the response
                       (update-in [:headers] #(merge % {"Content-Type" "application/json; charset=UTF-8"})))))))
 
 (defn- json-request?
