@@ -38,11 +38,11 @@
                      :wrappers [wrapper]}
                     {{:keys [id] :as user} :params}
                     (handle-update id))]
-    (expect
+    (fact
       (-> (request/request :put "/123") r :body)
       => success
-      (fake (handle-update "123") => success)
-      (fake (wrapper-called) => nil))))
+      (provided (handle-update "123") => success)
+      (provided (wrapper-called) => nil))))
 
 (deftest method-route-put
   (let [r (PUT "/:id"
@@ -51,11 +51,11 @@
                     :wrappers [wrapper]}
                    {{:keys [id] :as user} :params}
                    (handle-update id))]
-    (expect
+    (fact
       (-> (request/request :put "/123") r :body)
       => success
-      (fake (handle-update "123") => success)
-      (fake (wrapper-called) => nil))))
+      (provided (handle-update "123") => success)
+      (provided (wrapper-called) => nil))))
 
 (deftest method-route-get
   (let [r (GET "/:id"
@@ -64,11 +64,11 @@
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
-    (expect
+    (fact
       (-> (request/request :get "/123") r :body)
       => success
-      (fake (handle-get "123") => success)
-      (fake (wrapper-called) => nil))))
+      (provided (handle-get "123") => success)
+      (provided (wrapper-called) => nil))))
 
 (deftest wrapper-test
   (let [r (GET "/:id"
@@ -77,11 +77,11 @@
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
-    (expect
+    (fact
       (-> (request/request :get "/123") r :body)
       => success
-      (fake (handle-get "123") => success)
-      (fake (wrapper-called) => anything))))
+      (provided (handle-get "123") => success)
+      (provided (wrapper-called) => anything))))
 
 (defn concat-wrapper
   [x]
@@ -94,7 +94,7 @@
             (GET "/:id" {:wrappers [(concat-wrapper 3) (concat-wrapper 4)]}
                {{:keys [x] :as user} :params}
                (apply str x)))]
-    (expect (-> (request/request :get "/x/abcd") r :body) => "1234")))
+    (fact (-> (request/request :get "/x/abcd") r :body) => "1234")))
 
 
 (deftest group-test
@@ -127,28 +127,28 @@
                  {:doc {:description "descr" :name "name"}}
                {:as request}
                (ping)))]
-    (expect
+    (fact
       (-> (request/request :get "~api/users/123") r :body)
       => success
-      (fake (handle-get "123") => success)
-      (fake (wrapper-called) => anything)
-      (fake (group-wrapper-called) => anything))
-    (expect
+      (provided (handle-get "123") => success)
+      (provided (wrapper-called) => anything)
+      (provided (group-wrapper-called) => anything))
+    (fact
       (-> (request/request :put "~api/users/123") r :body)
       => success
-      (fake (handle-update "123") => success)
-      (fake (wrapper-called) => anything)
-      (fake (group-wrapper-called) => anything))
-    (expect
+      (provided (handle-update "123") => success)
+      (provided (wrapper-called) => anything)
+      (provided (group-wrapper-called) => anything))
+    (fact
       (-> (request/request :get "~api/posts/123") r :body)
       => success
-      (fake (handle-get-post "123") => success)
-      (fake (wrapper2-called) => anything)
-      (fake (group-wrapper-called) => anything))
-    (expect
+      (provided (handle-get-post "123") => success)
+      (provided (wrapper2-called) => anything)
+      (provided (group-wrapper-called) => anything))
+    (fact
       (-> (request/request :get "~api/ping") r :body)
       => success
-      (fake (ping) => success))))
+      (provided (ping) => success))))
 
 (deftest multi-lvl-groups-test
   (let [r (group "~api/" {:wrappers [group-wrapper]}
@@ -161,13 +161,13 @@
                     :wrappers [wrapper2]}
                  {{:keys [id]} :params}
                  (handle-get id))))]
-    (expect
+    (fact
       (-> (request/request :get "~api/users/123") r :body)
       => success
-      (fake (handle-get "123") => success)
-      (fake (wrapper-called) => anything)
-      (fake (wrapper2-called) => anything)
-      (fake (group-wrapper-called) => anything))))
+      (provided (handle-get "123") => success)
+      (provided (wrapper-called) => anything)
+      (provided (wrapper2-called) => anything)
+      (provided (group-wrapper-called) => anything))))
 
 (deftest re-test
   (let [r (GET ["/:id" :id #"[\w]*"]
@@ -176,11 +176,11 @@
                 :wrappers [wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
-    (expect
+    (fact
       (-> (request/request :get "/") r :body)
       => success
-      (fake (handle-get "") => success)
-      (fake (wrapper-called) => nil))))
+      (provided (handle-get "") => success)
+      (provided (wrapper-called) => nil))))
 
 (unfinished inc-req-count)
 
@@ -199,8 +199,8 @@
                 :wrappers [stat-wrapper]}
                {{:keys [id] :as user} :params}
                (handle-get id))]
-    (expect
+    (fact
       (-> (request/request :get "/123") r :body)
       => success
-      (fake (handle-get "123") => success)
-      (fake (inc-req-count :get "/:id") => anything))))
+      (provided (handle-get "123") => success)
+      (provided (inc-req-count :get "/:id") => anything))))
