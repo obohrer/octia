@@ -1,4 +1,4 @@
-(defproject octia "0.0.4-SNAPSHOT"
+(defproject octia "0.0.4"
   :description "A clojure library on top of compojure/ring to easily define api endpoints.
   Supports iodocs generation."
   :url "http://github.com/obohrer/octia"
