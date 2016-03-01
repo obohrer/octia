@@ -54,6 +54,6 @@
 (deftest json-both
   (fact "json is deserialized and serialized"
         (let [resp (request "/json/both" (cheshire/generate-string {:a "b" :c "d"}) "application/json")]
-          (:body resp) => "{\"c\":\"D\",\"a\":\"B\"}"
+          (:body resp) => "{\"a\":\"B\",\"c\":\"D\"}"
           (:headers resp) => {"Content-Type" "application/json; charset=UTF-8"})))
 
