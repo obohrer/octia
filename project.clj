@@ -3,9 +3,9 @@
   Supports iodocs generation."
   :url "http://github.com/obohrer/octia"
   :dependencies [[org.clojure/clojure       "1.8.0"]
-                 [compojure                 "1.4.0"
+                 [compojure                 "1.5.1"
                   :exclusions [joda-time]]
-                 [cheshire                  "5.5.0"]
+                 [cheshire                  "5.6.3"]
                  [com.palletops/thread-expr "1.3.0"]]
   :pedantic? :abort
   :global-vars {*warn-on-reflection* true}
